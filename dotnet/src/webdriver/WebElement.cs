@@ -561,6 +561,23 @@ namespace OpenQA.Selenium
         }
 
         /// <summary>
+        /// Gets a <see cref="Screenshot"/> object representing the image of this element on the screen.
+        /// </summary>
+        /// <returns>A <see cref="Screenshot"/> object containing the image.</returns>
+        public virtual Screenshot GetScreenshotNextChanged()
+        {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("id", this.elementId);
+
+            // Get the screenshot as base64.
+            Response screenshotResponse = this.Execute(DriverCommand.ElementScreenshot, parameters);
+            string base64 = screenshotResponse.Value.ToString();
+
+            // ... and convert it.
+            return new Screenshot(base64);
+        }
+
+        /// <summary>
         /// Simulates typing text into the element.
         /// </summary>
         /// <param name="text">The text to type into the element.</param>

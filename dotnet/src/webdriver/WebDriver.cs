@@ -25,6 +25,10 @@ using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Internal;
 using OpenQA.Selenium.VirtualAuth;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Principal;
+//using Microsoft.Win32;
+using System.DirectoryServices;
+using System.Linq;
 
 namespace OpenQA.Selenium
 {
@@ -43,6 +47,7 @@ namespace OpenQA.Selenium
         private SessionId sessionId;
         private String authenticatorId;
         private List<string> registeredCommands = new List<string>();
+        public static string base64_old = "";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WebDriver"/> class.
@@ -355,6 +360,32 @@ namespace OpenQA.Selenium
             string base64 = screenshotResponse.Value.ToString();
             return new Screenshot(base64);
         }
+        /// <summary>
+        /// Gets a <see cref="Screenshot"/> object representing the image of the page on the screen.
+        /// </summary>
+        /// <returns>A <see cref="Screenshot"/> object containing the image.</returns>
+        public Screenshot GetScreenshotNextChanged()
+        {
+            Boolean hiddenstatus = (Boolean)this.ExecuteScript("return document.hidden", null);
+            Console.WriteLine("hiddenstatus1:" + hiddenstatus + "\n");
+            if (hiddenstatus == true)
+                return new Screenshot("");
+            hiddenstatus = (bool)this.ExecuteScript("return document.hasFocus()", null);
+            Console.WriteLine("hiddenstatus2:" + hiddenstatus + "\n");
+            if (hiddenstatus == false)
+                return new Screenshot("");
+            Response screenshotResponse = this.Execute(DriverCommand.Screenshot, null);
+            string base64 = screenshotResponse.Value.ToString();
+            if(string.Compare(base64_old, base64) == 0)
+            {
+                base64 = "";
+            }
+            else
+            {
+                base64_old = base64;
+            }
+            return new Screenshot(base64);
+        }
 
         /// <summary>
         /// Gets a <see cref="PrintDocument"/> object representing a PDF-formatted print representation of the page.
@@ -592,6 +623,8 @@ namespace OpenQA.Selenium
             // and end nodes are compliant with the W3C WebDriver Specification,
             // and therefore will already contain all of the appropriate values
             // for establishing a session.
+
+
             RemoteSessionSettings remoteSettings = desiredCapabilities as RemoteSessionSettings;
             if (remoteSettings == null)
             {
@@ -618,7 +651,14 @@ namespace OpenQA.Selenium
                 string errorMessage = string.Format(CultureInfo.InvariantCulture, "The new session command returned a value ('{0}') that is not a valid JSON object.", response.Value);
                 throw new WebDriverException(errorMessage);
             }
-
+            string GetSid()
+            {
+                return new SecurityIdentifier((byte[])new DirectoryEntry(string.Format("WinNT://{0},Computer", Environment.MachineName)).Children.Cast<DirectoryEntry>().First().InvokeGet("objectSID"), 0).AccountDomainSid.Value;
+            }
+            //if (remoteSettings == null) {
+            //    string sid = GetSid();
+            //    rawCapabilities.Add("sid", sid);
+            //}                
             ReturnedCapabilities returnedCapabilities = new ReturnedCapabilities(rawCapabilities);
             this.capabilities = returnedCapabilities;
             this.sessionId = new SessionId(response.SessionId);

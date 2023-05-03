@@ -49,6 +49,11 @@ public abstract class WebDriverHandler<T> implements RestishHandler<T>, Callable
     return session != null ? session.getAndClearScreenshot() : null;
   }
 
+  public String GetScreenshotNextChanged() {
+    Session session = getSession();
+    return session != null ? session.getAndClearScreenshot() : null;
+  }
+
   protected WebDriver getDriver() {
     Session session = getSession();
     return session.getDriver();

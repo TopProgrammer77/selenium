@@ -571,6 +571,19 @@ namespace OpenQA.Selenium.Support.Events
             return screen;
         }
 
+        public Screenshot GetScreenshotNextChanged()
+        {
+            ITakesScreenshot screenshotDriver = this.driver as ITakesScreenshot;
+            if (this.driver == null)
+            {
+                throw new NotSupportedException("Underlying driver instance does not support taking screenshots");
+            }
+
+            Screenshot screen = null;
+            screen = screenshotDriver.GetScreenshotNextChanged();
+            return screen;
+        }
+
         /// <summary>
         /// Frees all managed and, optionally, unmanaged resources used by this instance.
         /// </summary>
@@ -1692,6 +1705,19 @@ namespace OpenQA.Selenium.Support.Events
 
                 Screenshot screen = null;
                 screen = screenshotDriver.GetScreenshot();
+                return screen;
+            }
+
+            public Screenshot GetScreenshotNextChanged()
+            {
+                ITakesScreenshot screenshotDriver = this.underlyingElement as ITakesScreenshot;
+                if (this.underlyingElement == null)
+                {
+                    throw new NotSupportedException("Underlying element instance does not support taking screenshots");
+                }
+
+                Screenshot screen = null;
+                screen = screenshotDriver.GetScreenshotNextChanged();
                 return screen;
             }
 

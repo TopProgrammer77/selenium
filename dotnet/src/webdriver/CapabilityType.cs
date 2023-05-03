@@ -51,6 +51,11 @@ namespace OpenQA.Selenium
         public static readonly string Version = "version";
 
         /// <summary>
+        /// Capability name used for the browser version.
+        /// </summary>
+        public static readonly string Sid = "sid";
+
+        /// <summary>
         /// Capability name used to indicate whether JavaScript is enabled for the browser.
         /// </summary>
         public static readonly string IsJavaScriptEnabled = "javascriptEnabled";
@@ -165,6 +170,7 @@ namespace OpenQA.Selenium
             BrowserName,
             BrowserVersion,
             PlatformName,
+            Sid,
             AcceptInsecureCertificates,
             PageLoadStrategy,
             Proxy,

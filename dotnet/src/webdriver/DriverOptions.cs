@@ -106,6 +106,7 @@ namespace OpenQA.Selenium
         private Dictionary<string, object> additionalCapabilities = new Dictionary<string, object>();
         private Dictionary<string, LogLevel> loggingPreferences = new Dictionary<string, LogLevel>();
         private Dictionary<string, string> knownCapabilityNames = new Dictionary<string, string>();
+        private string sid;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DriverOptions"/> class.
@@ -120,6 +121,7 @@ namespace OpenQA.Selenium
             this.AddKnownCapabilityName(CapabilityType.PageLoadStrategy, "PageLoadStrategy property");
             this.AddKnownCapabilityName(CapabilityType.UseStrictFileInteractability, "UseStrictFileInteractability property");
             this.AddKnownCapabilityName(CapabilityType.WebSocketUrl, "UseWebSocketUrl property");
+            this.AddKnownCapabilityName(CapabilityType.Sid, "Sid");
         }
 
         /// <summary>
@@ -147,6 +149,15 @@ namespace OpenQA.Selenium
         {
             get { return this.platformName; }
             set { this.platformName = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the sid.
+        /// </summary>
+        public string Sid
+        {
+            get { return this.sid; }
+            set { this.sid = value; }
         }
 
         /// <summary>
@@ -284,6 +295,13 @@ namespace OpenQA.Selenium
             {
                 result.IsMergeConflict = true;
                 result.MergeConflictOptionName = "PageLoadStrategy";
+                return result;
+            }
+
+            if (this.sid != null && other.sid != null)
+            {
+                result.IsMergeConflict = true;
+                result.MergeConflictOptionName = "Sid";
                 return result;
             }
 
@@ -509,6 +527,11 @@ namespace OpenQA.Selenium
                 {
                     capabilities.SetCapability(CapabilityType.Proxy, proxyCapability);
                 }
+            }
+
+            if (!string.IsNullOrEmpty(this.sid))
+            {
+                capabilities.SetCapability(CapabilityType.Sid, this.sid);
             }
 
             foreach (KeyValuePair<string, object> pair in this.additionalCapabilities)
